@@ -4,6 +4,8 @@ For my thesis I will need some code, these files are implementations of algorith
 
 This is still work in progress, code will likely to be changed, hopefully for the better. 
 
+See the examples directory for some examples.
+
 # Thesis
 
 My thesis will be in the area of geometric deep learning. More information will follow.
