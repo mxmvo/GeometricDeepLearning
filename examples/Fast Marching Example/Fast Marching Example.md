@@ -35,7 +35,7 @@ In short:
 Continue untill all the points are calculated or when a desired distance is reached.
 
 The approach taken in the paper for the update rule is based on the triangulation. 
-![Image](./images/fmm.png?raw=true)
+![Image](./fmm.png?raw=true)
 
 The distance to point $A$ and $B$ are known and are such that $d(B)\geq d(A)$. The goal is to find a 'distance' plane that has the distance values of $A$ and $B$. Right now there are infinitely many planes that obey this rule. With the following observations we can restrict the solution space.
 

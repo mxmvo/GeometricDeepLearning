@@ -403,7 +403,7 @@ This is a more general mesh of a human body from the [FAUST dataset](http://file
 
 This mesh is still relatively clean, calculating the distance function there might be a different global minumum instead of the origin point, this could be circumvented using a different $m$ scale. To see this properly one should view the meshes in a different window (here one can zoom and rotate), see the below code for the generation of the images.
 <div style="display: block">
-<img src="images/heat_1.png" width="450", style="display: block; float: left;"/><img src="images/heat_2.png" width="450" style="display: block; float: left;"/>
+<img src="heat_1.png" width="450", style="display: block; float: left;"/><img src="heat_2.png" width="450" style="display: block; float: left;"/>
 </div>
 
 
