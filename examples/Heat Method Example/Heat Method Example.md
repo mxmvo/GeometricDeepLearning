@@ -9,7 +9,7 @@ from plyfile import PlyData, PlyElement
 from vtki import PolyData
 from tqdm import tqdm
 
-sys.path.append("..")
+sys.path.append("../..")
 from modules.heat_method import heat_method
 
 ```
@@ -377,26 +377,6 @@ plotter.show()
 
 Here the iso-triangulation works with similar results as for the northpole, while the uv decomposition is a bit more fuzzy, and the distance does not seem totally cricular. 
 
-<a name="Issues"></a>
-# Issues
-
-## Singularity
-
-In case of the sphere (in a smooth sense) there exist harmonic functions, these are function in the kernel of the Laplace Beltrami operator. Since we are working with an approximation of the sphere it doesn't have to be that the discrete laplace operator has a non-trivial kernel. In case when it happen we can not solve the system of linear equations in step III. In this case, a indirect method that find a least square solution might be best, this is not yet implemented/investigated.
-
-
-```python
-sphere_40_vert, sphere_40_tri = read_ply('../test_data/sphere_uv_40k.ply')
-```
-
-
-```python
-sphere_40 = heat_method(sphere_40_vert, sphere_40_tri)
-```
-
-    Matrix in singular, cannot continue
-
-
 ## Origin has non-zero distance
 
 This is a more general mesh of a human body from the [FAUST dataset](http://files.is.tue.mpg.de/black/papers/FAUST2014.pdf)
@@ -492,7 +472,7 @@ plotter.show()
 ```
 
 
-![png](output_31_0.png)
+![png](output_28_0.png)
 
 
 
