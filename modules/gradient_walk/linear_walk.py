@@ -1,5 +1,5 @@
 import numpy as np
-from modules.geometry_functions import discrete_gradient
+from modules.ddg import discrete_gradient
 
 class LinearWalk():
     def __init__(self,trimesh):#, value_function):

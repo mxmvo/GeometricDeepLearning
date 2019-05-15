@@ -5,38 +5,32 @@ sys.path.append('..')
 from modules.trimesh import trimesh
 from modules.fast_marching_method import FMM
 from modules.gradient_walk.linear_walk import LinearWalk
-from modules.geometry_functions import discrete_gradient
+#from modules.ddg import discrete_gradient
+#from modules.geometry_functions import discrete_gradient
 from plyfile import PlyData, PlyElement
 from tqdm import tqdm
 from glob import glob
 
-def trimesh_from_ply(f_name):
-    data = PlyData.read(f_name)
-    
-    data_vert = np.vstack([list(vertex) for vertex in data['vertex'].data])
-    data_tri = np.vstack(data['face'].data['vertex_indices'])
-    return trimesh(data_vert,data_tri)
 
 def adjacency_matrix_fmm(mesh, p_max =.05,  p_bins = 5, t_bins = 16, range_ind = None):
-    #t0 = time.time()
+    
     num_vert = len(mesh.vertices)
 
     if range_ind == None:
         range_ind = range(num_vert)
 
-
-    #paths = {}
-    
+    # Use the Fast Marching Method to calculate distances
     fmm = FMM(mesh)
     
+    # Keep track of indices
     row_coo = []
     col_coo = []
     angle_coo = []
     radius_coo = []
     
-    times = []
-    for step, ind in enumerate(tqdm(range_ind)):
-        
+    for ind in tqdm(range_ind):
+
+        # Calculate the distances.
         phi = fmm.run([ind], max_distance = 2*p_max)
         phi[phi == np.inf] = 3*p_max
         
@@ -44,12 +38,12 @@ def adjacency_matrix_fmm(mesh, p_max =.05,  p_bins = 5, t_bins = 16, range_ind =
         # Find the points that we are interested in
         interior = np.where(phi < p_max)[0]
        
-
+        # Walk that walk
         walk = LinearWalk(mesh)
         ext_paths = []
-        Y = discrete_gradient(mesh, phi)
+        
         for p in (set(interior)-{ind}):
-            ext_paths.append(walk.run(ind, p, -Y, max_length = 2*p_max))
+            ext_paths.append(walk.run(ind, p, phi, max_length = 2*p_max))
         
         
         
@@ -69,7 +63,12 @@ def adjacency_matrix_fmm(mesh, p_max =.05,  p_bins = 5, t_bins = 16, range_ind =
             pnt = mesh.mesh_to_chart(path['points'][-1], path['faces'][-1], nbh)
             pnt_2d.append( pnt/(np.linalg.norm(pnt)))
             
-        
+        # Add the origin
+        row_coo.append(ind)
+        col_coo.append(ind)
+        angle_coo.append(0)
+        radius_coo.append(0)
+
         pnt_2d = np.array(pnt_2d)
         if len(pnt_2d)>0:
             angle = np.arccos(np.clip(pnt_2d[:,0],-1,1))
@@ -91,28 +90,4 @@ def adjacency_matrix_fmm(mesh, p_max =.05,  p_bins = 5, t_bins = 16, range_ind =
     adj_mat[row_coo,col_coo,radius_coo,angle_coo] = 1
 
     return adj_mat 
-    #return scipy.sparse.csc_matrix(adj_mat.reshape(num_vert,-1))
  
-
-data_path_in = '/Users/maximoldenbeek/Dropbox/Thesis/datasets/MPI-FAUST/training/registrations'
-data_path_out = '/Users/maximoldenbeek/Dropbox/Thesis/datasets/FAUST_preprocesed/hard'
-
-registrations = sorted(glob(os.path.join(data_path_in,'*.ply')))
-
-for file_path in registrations:
-    file = re.findall('tr_.*?ply$', file_path)[0]
-    file_out = re.sub('\.ply$','_hard.npz',file)
-    path_out = os.path.join(data_path_out, file_out)
-    print('-'*20)
-    print('Starting:',file)
-    if os.path.isfile(path_out):
-        print('File {} already exists, continuing with next'.format(file))
-        continue
-    
-    mesh = trimesh_from_ply(file_path)
-    mat = adjacency_matrix_fmm(mesh,p_max = 0.03)
-
-    print('Saving sparse matrix')
-    num_vert = len(mesh.vertices)
-    scipy.sparse.save_npz(path_out, scipy.sparse.csc_matrix(mat.reshape(num_vert,-1))) 
-    print('Succesfull')
