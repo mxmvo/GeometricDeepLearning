@@ -51,7 +51,7 @@ def laplace_beltrami_eigenfunctions(trimesh, mode = 'Centric' ,**kwargs):
 
     return val, vec
 
-def geometry_functions(mesh, v_max = 1800, num_descr = 150 , k = 300):
+def geometry_functions(mesh, v_max = 2100, num_descr = 150 , k = 300):
     val, vec = laplace_beltrami_eigenfunctions(mesh, k = k)
     B_mat = B_spline_matrix(val, v_max, num_descr)
 

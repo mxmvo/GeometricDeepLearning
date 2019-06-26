@@ -1,0 +1,147 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+import glob, re
+import numpy as np
+
+from modules.training.extra_layers import GeodesicLayer, EquivariantLayer, AMP
+
+
+class GCCN_1(nn.Module):
+    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16):
+        super(GCCN_1,self).__init__()
+        self.linear_1 = nn.Linear(neurons[0], neurons[1])
+        self.GC_1 = GeodesicLayer(neurons[1], neurons[2])
+        
+    
+    def forward(self, x, conn):
+        res = F.relu(self.linear_1(x))
+        res = self.GC_1(res, conn)
+        return res.squeeze()
+    
+    def load_model(self, params, it = None):
+        try:
+            if it == None:
+                models = sorted(glob.glob(params['model_dir']+'*.mdl'))
+            
+                I = [ int(re.findall(r'_([0-9]+).mdl', i)[0]) for i in models]
+                m = models[np.argmax(I)]
+            else:
+                models = glob.glob(params['model_dir']+'*'+str(it)+'.mdl')
+                m = models[0]
+            
+            it = re.findall('_([0-9]+).mdl',m)[0]
+            params['it'] = int(it)
+            self.load_state_dict(torch.load(m))
+            print('Loaded model: {}'.format(m))
+        except:
+            print('Couldn\'t load model')
+            params['it'] = 0
+        return params
+
+
+class GCCN_2(nn.Module):
+    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16):
+        super(GCCN_2,self).__init__()
+        self.linear_1 = nn.Linear(neurons[0], neurons[1])
+        self.GC_1 = GeodesicLayer(neurons[1], neurons[2])
+        
+    
+    def forward(self, x, conn):
+        res = F.relu(self.linear_1(x))
+        res = self.GC_1(res, conn)
+        norm = torch.norm(res.squeeze(), dim = - 1, keepdim = True)
+        return res/norm
+    
+    def load_model(self, params, it = None):
+        try:
+            if it == None:
+                models = sorted(glob.glob(params['model_dir']+'*.mdl'))
+            
+                I = [ int(re.findall(r'_([0-9]+).mdl', i)[0]) for i in models]
+                m = models[np.argmax(I)]
+            else:
+                models = glob.glob(params['model_dir']+'*'+str(it)+'.mdl')
+                m = models[0]
+            
+            it = re.findall('_([0-9]+).mdl',m)[0]
+            params['it'] = int(it)
+            self.load_state_dict(torch.load(m))
+            print('Loaded model: {}'.format(m))
+        except:
+            print('Couldn\'t load model')
+            params['it'] = 0
+        return params
+
+class GCCN_3(nn.Module):
+    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16):
+        super(GCCN_3,self).__init__()
+        self.linear_1 = nn.Linear(neurons[0], neurons[1])
+        self.GC_1 = GeodesicLayer(neurons[1], neurons[2])
+        self.GC_2 = GeodesicLayer(neurons[2], neurons[3])
+        
+    
+    def forward(self, x, conn):
+        res = F.relu(self.linear_1(x))
+        res = F.relu(self.GC_1(res, conn))
+        res = self.GC_2(res,conn)
+        norm = torch.norm(res.squeeze(), dim = - 1, keepdim = True)
+        return res/norm
+    
+    def load_model(self, params, it = None):
+        try:
+            if it == None:
+                models = sorted(glob.glob(params['model_dir']+'*.mdl'))
+            
+                I = [ int(re.findall(r'_([0-9]+).mdl', i)[0]) for i in models]
+                m = models[np.argmax(I)]
+            else:
+                models = glob.glob(params['model_dir']+'*'+str(it)+'.mdl')
+                m = models[0]
+            
+            it = re.findall('_([0-9]+).mdl',m)[0]
+            params['it'] = int(it)
+            self.load_state_dict(torch.load(m))
+            print('Loaded model: {}'.format(m))
+        except:
+            print('Couldn\'t load model')
+            params['it'] = 0
+        return params
+
+class GCCN_4(nn.Module):
+    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16):
+        super(GCCN_4,self).__init__()
+        self.linear_1 = nn.Linear(neurons[0], neurons[1])
+        self.GC_1 = EquivariantLayer(neurons[1], neurons[2], R_in = 1, R_out = t_bins)
+        self.GC_2 = EquivariantLayer(neurons[2], neurons[3], R_in = t_bins, R_out = t_bins)
+        self.amp = AMP(regular_size = 16)
+        
+    
+    def forward(self, x, conn):
+        res = F.relu(self.linear_1(x))
+        res = F.relu(self.GC_1(res, conn))
+        res = self.GC_2(res,conn)
+        res = self.amp(res)
+        norm = torch.norm(res.squeeze(), dim = - 1, keepdim = True)
+        return res/norm
+    
+    def load_model(self, params, it = None):
+        try:
+            if it == None:
+                models = sorted(glob.glob(params['model_dir']+'*.mdl'))
+            
+                I = [ int(re.findall(r'_([0-9]+).mdl', i)[0]) for i in models]
+                m = models[np.argmax(I)]
+            else:
+                models = glob.glob(params['model_dir']+'*'+str(it)+'.mdl')
+                m = models[0]
+            
+            it = re.findall('_([0-9]+).mdl',m)[0]
+            params['it'] = int(it)
+            self.load_state_dict(torch.load(m))
+            print('Loaded model: {}'.format(m))
+        except:
+            print('Couldn\'t load model')
+            params['it'] = 0
+        return params
