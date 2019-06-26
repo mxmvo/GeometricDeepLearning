@@ -39,7 +39,7 @@ params = {'batch_size':500,
          'device': torch.device("cuda" if torch.cuda.is_available() else "cpu")}
 
 # Initialize Model
-model = GCCN_3(params['neurons'])
+model = GCCN_3(params['neurons'], device = params['device'])
 
 
 dataset = BodyDataset(g_files,c_files)

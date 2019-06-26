@@ -7,7 +7,7 @@ class GeodesicLayer(nn.Module):
     An implementation of the Geodesic Convolution Layer. 
     Right now is uses a max pooling over the rotational bins. 
     ''' 
-    def __init__(self, in_channels, out_channels, weights = None, p_bins = 5, t_bins = 16):
+    def __init__(self, in_channels, out_channels, weights = None, p_bins = 5, t_bins = 16, device = 'cpu'):
         super(GeodesicLayer,self).__init__()
         
         self.B = p_bins*t_bins
@@ -15,6 +15,7 @@ class GeodesicLayer(nn.Module):
         self.t = t_bins
         self.out = out_channels
         self.inp = in_channels
+        self.device = device
 
         if weights is None:
             self.weights = nn.Parameter(torch.randn((self.B, self.inp, self.out), dtype = torch.float))
@@ -42,6 +43,7 @@ class GeodesicLayer(nn.Module):
             
         
         self.layer_weights = self.layer_weights.reshape(self.inp*self.B,self.out*self.t)
+        self.layer_weights.to(self.device)
         # TODO Implement
         
         
@@ -58,7 +60,7 @@ class EquivariantLayer(nn.Module):
     An implementation of the Geodesic Convolution Layer. 
     Right now is uses a max pooling over the rotational bins. 
     ''' 
-    def __init__(self, C_in, C_out, R_in, R_out, weights = None, p_bins = 5, t_bins = 16):
+    def __init__(self, C_in, C_out, R_in, R_out, weights = None, p_bins = 5, t_bins = 16, device = 'cpu'):
         super(EquivariantLayer,self).__init__()
         
         self.B = p_bins*t_bins
@@ -68,6 +70,7 @@ class EquivariantLayer(nn.Module):
         self.C_in = C_in
         self.R_in = R_in
         self.R_out = R_out
+        self.device = device
 
 
         if weights is None:
@@ -97,7 +100,7 @@ class EquivariantLayer(nn.Module):
             pif = self.weights[i][self.rotation_matrix]
             self.layer_weights[:,i*self.R_out:(i+1)*self.R_out] = pif
         
-        
+        self.layer_weights.to(self.device)
         x = torch.sparse.mm(conn, x)
         x = x.reshape(-1,self.B*self.C_in*self.R_in)
         x = torch.matmul(x, self.layer_weights)

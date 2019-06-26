@@ -75,11 +75,11 @@ class GCCN_2(nn.Module):
         return params
 
 class GCCN_3(nn.Module):
-    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16):
+    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16, device = 'cpu'):
         super(GCCN_3,self).__init__()
         self.linear_1 = nn.Linear(neurons[0], neurons[1])
-        self.GC_1 = GeodesicLayer(neurons[1], neurons[2])
-        self.GC_2 = GeodesicLayer(neurons[2], neurons[3])
+        self.GC_1 = GeodesicLayer(neurons[1], neurons[2], device = device)
+        self.GC_2 = GeodesicLayer(neurons[2], neurons[3], device = device)
         
     
     def forward(self, x, conn):
