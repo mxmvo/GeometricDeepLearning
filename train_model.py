@@ -1,12 +1,7 @@
 from scipy import sparse
 import sys, glob, os, re, pickle
-#sys.path.append('./repo')
 
-from plyfile import PlyData, PlyElement
 
-from tqdm import tqdm
-import vtki
-from vtki import PolyData
 from modules.trimesh import trimesh
 from modules.geometry_functions import geometry_functions
 
@@ -26,13 +21,12 @@ from modules.training.train import training
 from modules.training.loss import siamese_loss
 
 # Training files
-g_files = sorted(glob.glob('../../datasets/FAUST_preprocesed/g_func/*'))[:70]
-c_files = sorted(glob.glob('../../datasets/FAUST_preprocesed/conn/*'))[:70]
-m_files = sorted(glob.glob('../../datasets/MPI-FAUST/training/registrations/*.ply'))
+g_files = sorted(glob.glob('../dataset/g_func/*'))[:70]
+c_files = sorted(glob.glob('../dataset/conn/*'))[:70]
 params = {'batch_size':500,
          'lr': 0.001,
          'epochs': 100,
-         'model_dir': '/Users/maximoldenbeek/Dropbox/Thesis/code/model/shape_discriptor/2/',
+         'model_dir': '/home/maxim/models/1/',
          'p_bins': 5,
          't_bins': 16,
          'n_vert': 6890,

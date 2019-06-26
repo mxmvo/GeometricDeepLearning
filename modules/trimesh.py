@@ -1,7 +1,5 @@
 import numpy as np
 import matplotlib.cm as cm
-import vtki
-from vtki import PolyData
 import time
 
 from .config import trimesh_config
