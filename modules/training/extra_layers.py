@@ -43,10 +43,9 @@ class GeodesicLayer(nn.Module):
             
         
         self.layer_weights = self.layer_weights.reshape(self.inp*self.B,self.out*self.t)
-        self.layer_weights.to(self.device)
+        self.layer_weights = self.layer_weights.to(self.device)
         # TODO Implement
-        
-        
+
         x = torch.sparse.mm(conn, x)
         x = x.reshape(-1,self.B*self.inp)
         x = torch.matmul(x, self.layer_weights)

@@ -49,7 +49,7 @@ def training(model, dataloader, params, batch_loss):
 
             loss.backward()
             print('\r{:>10}: {:.5f}'.format(ep*len_data_set + i,loss), end = '')
-            avg_loss.append(loss.data.numpy())
+            avg_loss.append(loss.data.cpu().numpy())
             opt.step()
             opt.zero_grad()
 
