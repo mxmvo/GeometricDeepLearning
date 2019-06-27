@@ -52,6 +52,10 @@ def training(model, dataloader, params, batch_loss):
             avg_loss.append(loss.data.cpu().numpy())
             opt.step()
             opt.zero_grad()
+            
+            # Update the weights in the rotation matix
+            with torch.no_grad():
+                model.update_layers()
 
             if (i % params['it_print']) == 0:
                 t_new = time.time()

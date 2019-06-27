@@ -125,6 +125,11 @@ class GCCN_4(nn.Module):
         res = self.amp(res)
         norm = torch.norm(res.squeeze(), dim = - 1, keepdim = True)
         return res/norm
+
+    def update_layers(self):
+        self.GC_1.update_layer()
+        self.GC_2.update_layer()
+
     
     def load_model(self, params, it = None):
         try:

@@ -81,29 +81,27 @@ class EquivariantLayer(nn.Module):
         self.rotation_matrix = self.rotate(x)
 
         
-        self.layer_weights = torch.empty(self.C_in*self.R_in*self.B,self.C_out*self.R_out)  
-
-        for i in range(self.C_out):
-            pif = self.weights[i][self.rotation_matrix]
-            self.layer_weights[:,i*self.R_out:(i+1)*self.R_out] = pif
+        self.layer_weights = torch.empty(self.C_in*self.R_in*self.B,self.C_out*self.R_out).to(self.device) 
 
 
         
         
     def forward(self, x, conn):
         # Make the matrix
+        #self.layer_weights = torch.empty(self.C_in*self.R_in*self.B,self.C_out*self.R_out).to(self.device) 
         
-        self.layer_weights = torch.empty(self.C_in*self.R_in*self.B,self.C_out*self.R_out)  
-
-        for i in range(self.C_out):
-            pif = self.weights[i][self.rotation_matrix]
-            self.layer_weights[:,i*self.R_out:(i+1)*self.R_out] = pif
         
-        self.layer_weights = self.layer_weights.to(self.device)
         x = torch.sparse.mm(conn, x)
         x = x.reshape(-1,self.B*self.C_in*self.R_in)
         x = torch.matmul(x, self.layer_weights)
         return x
+
+    def update_layer(self):
+
+        for i in range(self.C_out):
+            pif = self.weights[i][self.rotation_matrix]
+            self.layer_weights[:,i*self.R_out:(i+1)*self.R_out] = pif
+
         
 
     def angle_rotation(self,x):
