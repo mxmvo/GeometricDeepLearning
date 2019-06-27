@@ -99,7 +99,7 @@ class EquivariantLayer(nn.Module):
             pif = self.weights[i][self.rotation_matrix]
             self.layer_weights[:,i*self.R_out:(i+1)*self.R_out] = pif
         
-        self.layer_weights.to(self.device)
+        self.layer_weights = self.layer_weights.to(self.device)
         x = torch.sparse.mm(conn, x)
         x = x.reshape(-1,self.B*self.C_in*self.R_in)
         x = torch.matmul(x, self.layer_weights)

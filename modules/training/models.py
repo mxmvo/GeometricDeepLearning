@@ -110,11 +110,11 @@ class GCCN_3(nn.Module):
         return params
 
 class GCCN_4(nn.Module):
-    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16):
+    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16, device = 'cpu'):
         super(GCCN_4,self).__init__()
         self.linear_1 = nn.Linear(neurons[0], neurons[1])
-        self.GC_1 = EquivariantLayer(neurons[1], neurons[2], R_in = 1, R_out = t_bins)
-        self.GC_2 = EquivariantLayer(neurons[2], neurons[3], R_in = t_bins, R_out = t_bins)
+        self.GC_1 = EquivariantLayer(neurons[1], neurons[2], R_in = 1, R_out = t_bins, device = device)
+        self.GC_2 = EquivariantLayer(neurons[2], neurons[3], R_in = t_bins, R_out = t_bins, device = device)
         self.amp = AMP(regular_size = 16)
         
     
