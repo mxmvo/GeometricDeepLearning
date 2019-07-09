@@ -73,34 +73,63 @@ class EquivariantLayer(nn.Module):
 
 
         if weights is None:
-            self.weights = nn.Parameter(torch.randn((self.C_out,self.C_in*self.R_in * self.B), dtype = torch.float))
+            self.weights = nn.Parameter(torch.randn((self.C_in*self.R_in * self.B, self.C_out), dtype = torch.float))
         else:
             self.weights = nn.Parameter(torch.from_numpy(weights))
        
         x = torch.arange(0,self.R_in*self.B)
         self.rotation_matrix = self.rotate(x)
 
-        
-        self.layer_weights = torch.empty(self.C_in*self.R_in*self.B,self.C_out*self.R_out).to(self.device) 
+        self.index_sparse = self.make_index_sparse(self.rotation_matrix)
+
+        self.update_layer_weights()
+        '''
+        self.index_matrix = torch.zeros((self.R_out,self.C_in * self.R_in * self.B, self.C_in * self.R_in * self.B), dtype = torch.float)
+
+        for i in range(self.R_out):
+            self.index_matrix[i] = self.index_matrix[i].scatter(0,self.rotation_matrix[:,i].view(1,-1), 1)
+
+        self.index_matrix = self.index_matrix.to(self.device)
+        '''
+        #self.layer_weights = torch.empty(self.C_in*self.R_in*self.B,self.C_out*self.R_out).to(self.device) 
 
 
-        
+    def make_index_sparse(self,R):
+        cols = R.reshape(-1)
+        rows = torch.arange(0,len(cols))
+        data = torch.tensor([1]*len(cols))
+
+        i = torch.LongTensor([rows.data.numpy(),cols.data.numpy()])
+        v = data.float()
+        index_sparse = torch.sparse.FloatTensor(i, v, torch.Size([self.R_in*self.B*self.C_in*self.R_out,self.R_in*self.B*self.C_in])).to(self.device)
+        return index_sparse
+
+    def update_layer_weights(self):
+        l_weights = torch.sparse.mm(self.index_sparse, self.weights)
+        self.l_weights = l_weights.reshape(-1,self.R_out,self.C_out).permute(0,2,1).reshape(self.C_in*self.R_in*self.B,-1)
+        self.l_weights
+
+
         
     def forward(self, x, conn):
         # Make the matrix
         #self.layer_weights = torch.empty(self.C_in*self.R_in*self.B,self.C_out*self.R_out).to(self.device) 
         
-        
+        #l_weights = torch.matmul(self.weights.unsqueeze(1).unsqueeze(1),self.index_matrix)
+        #l_weights = l_weights.squeeze().reshape(-1,self.C_in * self.R_in * self.B).t()
+        #l_weights = torch.sparse.mm(self.index_sparse, self.weights)
+        #l_weights = l_weights.reshape(-1,self.R_out,self.C_out).permute(0,2,1).reshape(self.C_in*self.R_in*self.B,-1)
+
         x = torch.sparse.mm(conn, x)
         x = x.reshape(-1,self.B*self.C_in*self.R_in)
-        x = torch.matmul(x, self.layer_weights)
+        x = torch.matmul(x, self.l_weights)
         return x
 
     def update_layer(self):
-
-        for i in range(self.C_out):
-            pif = self.weights[i][self.rotation_matrix]
-            self.layer_weights[:,i*self.R_out:(i+1)*self.R_out] = pif
+        self.update_layer_weights() 
+        #for i in range(self.C_out):
+        #     pif = self.weights[i][self.rotation_matrix]
+        #     self.layer_weights[:,i*self.R_out:(i+1)*self.R_out] = pif
 
         
 
