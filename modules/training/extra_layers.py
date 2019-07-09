@@ -80,7 +80,7 @@ class EquivariantLayer(nn.Module):
         x = torch.arange(0,self.R_in*self.B)
         self.rotation_matrix = self.rotate(x)
 
-        self.index_sparse = self.make_index_sparse(self.rotation_matrix)
+        self.index_sparse = self.make_index_sparse(self.rotation_matrix).to(self.device)
 
         self.update_layer_weights()
         '''
@@ -107,7 +107,6 @@ class EquivariantLayer(nn.Module):
     def update_layer_weights(self):
         l_weights = torch.sparse.mm(self.index_sparse, self.weights)
         self.l_weights = l_weights.reshape(-1,self.R_out,self.C_out).permute(0,2,1).reshape(self.C_in*self.R_in*self.B,-1)
-        self.l_weights
 
 
         
