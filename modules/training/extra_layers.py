@@ -174,7 +174,7 @@ class AMP(nn.Module):
     An implementation of the Geodesic Convolution Layer. 
     Right now is uses a max pooling over the rotational bins. 
     ''' 
-    def __init__(self, regular_size = 80):
+    def __init__(self, regular_size = 16):
         super(AMP,self).__init__()
         
         self.R = regular_size
