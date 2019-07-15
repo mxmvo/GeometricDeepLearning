@@ -29,16 +29,18 @@ def training(model, dataloader, params, batch_loss):
             g_1, g_2 = inp_1[0][0], inp_2[0][0]
             d_1, d_2 = inp_1[1], inp_2[1]
 
+            t0 = time.time()
             c_1 = torch.sparse.FloatTensor(d_1['ind'][0], d_1['data'][0], torch.Size(d_1['size']))
             c_2 = torch.sparse.FloatTensor(d_2['ind'][0], d_2['data'][0], torch.Size(d_2['size']))
-
+            
             # To device
             g_1, g_2 = g_1.to(params['device']), g_2.to(params['device'])
             c_1, c_2 = c_1.to(params['device']), c_2.to(params['device'])
 
+            t1 = time.time()
             out_1 = model(g_1, c_1)
             out_2 = model(g_2, c_2)
-
+            t2 = time.time()
             ind = np.random.choice(vert_list, size = 2*batch_size, replace = False)
 
             out = out_1[ind[:batch_size]]
@@ -48,7 +50,8 @@ def training(model, dataloader, params, batch_loss):
             loss = batch_loss(out,out_pos, out_neg, params)
 
             loss.backward()
-            print('\r{:>10}: {:.5f}'.format(ep*len_data_set + i,loss), end = '')
+            t3 = time.time()
+            print('\r{:>10}: {:.5f}, [back, forward, data] = {}'.format(ep*len_data_set + i,loss, [t3-t2, t2-t1, t1-t0]), end = '')
             avg_loss.append(loss.data.cpu().numpy())
             opt.step()
             opt.zero_grad()
@@ -67,7 +70,7 @@ def training(model, dataloader, params, batch_loss):
 
             if ((params['it']+ep*len_data_set+i) % params['it_save']) == 0:
                 m_file = os.path.join(params['model_dir'], 'descr_'+str(params['it']+ep*len_data_set+i)+'.mdl')
-                log_line = 'Saving Model: {}'.format(m_file)
+                log_line = '\n Saving Model: {}'.format(m_file)
                 print(log_line, end ='...', flush = True)
                 torch.save([model.state_dict(), avg_loss], m_file)
                 print('Saved', flush = True)
