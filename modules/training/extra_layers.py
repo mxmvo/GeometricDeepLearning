@@ -75,7 +75,7 @@ class EquivariantLayer(nn.Module):
         if weights is None:
             self.weights = nn.Parameter(torch.randn((self.C_in*self.R_in * self.B, self.C_out), dtype = torch.float).to(self.device))
         else:
-            self.weights = nn.Parameter(torch.from_numpy(weights))
+            self.weights = nn.Parameter(torch.from_numpy(weights).float()).to(self.device)
        
         x = torch.arange(0,self.R_in*self.B)
         self.rotation_matrix = self.rotate(x)
@@ -106,7 +106,7 @@ class EquivariantLayer(nn.Module):
 
     def update_layer_weights(self):
         l_weights = torch.sparse.mm(self.index_sparse, self.weights)
-        self.l_weights = l_weights.reshape(-1,self.R_out,self.C_out).permute(0,2,1).reshape(self.C_in*self.R_in*self.B,-1)
+        self.l_weights = l_weights.reshape(self.C_in,self.R_in,self.B,self.R_out,self.C_out).permute(2,0,1,4,3).reshape(self.C_in*self.R_in*self.B,-1)
 
 
         
@@ -138,8 +138,8 @@ class EquivariantLayer(nn.Module):
         pif_1 = torch.zeros(pif.shape, dtype = torch.int)
 
         for i in range(self.R_in):
-            pif_1[i*self.t:i*self.t+self.t-1,:] = pif[i*self.t+1:i*self.t+self.t,:]
-            pif_1[i*self.t+self.t-1,:] = pif[i*self.t,:]
+            pif_1[i*self.t:(i+1)*self.t-1,:] = pif[i*self.t+1:(i+1)*self.t,:]
+            pif_1[(i+1)*self.t-1,:] = pif[i*self.t,:]
         
         return pif_1.view(-1)
 
