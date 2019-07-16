@@ -88,7 +88,10 @@ class GCCN_3(nn.Module):
         res = self.GC_2(res,conn)
         norm = torch.norm(res.squeeze(), dim = - 1, keepdim = True)
         return res/norm
-    
+
+    def update_layers(self):
+        None
+
     def load_model(self, params, it = None):
         try:
             if it == None:
