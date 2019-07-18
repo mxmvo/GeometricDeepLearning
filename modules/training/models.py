@@ -42,10 +42,10 @@ class GCCN_1(nn.Module):
 
 
 class GCCN_2(nn.Module):
-    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16):
+    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16, device = 'cpu'):
         super(GCCN_2,self).__init__()
         self.linear_1 = nn.Linear(neurons[0], neurons[1])
-        self.GC_1 = GeodesicLayer(neurons[1], neurons[2])
+        self.GC_1 = GeodesicLayer(neurons[1], neurons[2], device = device)
         
     
     def forward(self, x, conn):
@@ -55,7 +55,7 @@ class GCCN_2(nn.Module):
         return res/norm
 
     def update_layers(self):
-        None
+        None    
     
     def load_model(self, params, it = None):
         try:
