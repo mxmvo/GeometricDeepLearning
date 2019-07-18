@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.cm as cm
 import time
 
+import vtki
+from vtki import PolyData
 from .config import trimesh_config
 
 eps = np.finfo(np.float64).eps
@@ -132,7 +134,17 @@ class trimesh():
                     break
         if {n[0],n[-1]} in boundary:
             n.append(n[0])
-        return n
+
+        # Check orientation
+        tri = adj_tri[0]
+        v_0 = np.where(tri == ind)[0][0]
+        v_1, v_2 = (v_0+1)%3, (v_0+2)%3
+        edge = [tri[v_1],tri[v_2]]
+        for i in range(len(n)-1):
+            if edge == n[i:i+2]:
+                return n
+                
+        return n[::-1]
 
     def face_ind(self,face):
         f = list(face)
@@ -163,8 +175,8 @@ class trimesh():
         for i in indices:
             if i in self._atlas:
                 continue
-            hood, ind = self.make_chart(i, scale = scale)
-            self._atlas[i] = {'nbh':hood,'sort_ind':ind}
+            hood, ind, angles = self.make_chart(i, scale = scale)
+            self._atlas[i] = {'nbh':hood,'sort_ind':ind, 'angles':angles}
 
     def make_chart(self, center_vertex, scale = 1):
         '''
@@ -198,7 +210,7 @@ class trimesh():
         for i, n in enumerate(nbh_ind):
             nbh_hood[n] = pnts_2D[i]
         
-        return nbh_hood, nbh_ind
+        return nbh_hood, nbh_ind, angles
 
     def calculate_angles(self,center,neigh_points):
         centered_neigh_mat = neigh_points-center
@@ -472,9 +484,13 @@ class trimesh():
 
         return Df
 
-    def vtki_plot(self,ind, color, cmap = 'jet', paths = [], labels ={}, arrows_tri = [], arrows_vert = [], text = ''):
+    def vtki_plot(self,ind = [], color = [], cmap = 'jet', paths = [], labels ={}, arrows_tri = [], arrows_vert = [], text = ''):
         polydata = PolyData(self.vertices, np.c_[[[3]]*len(self.triangles),self.triangles])
-        plotter = vtki.BackgroundPlotter()
+        plotter = vtki.BackgroundPlotter(transparent_background = True, screenshot = True)
+        plotter.set_background('white')
+
+        if len(color) == 0:
+            color = self.vertices[:,0]
 
         plotter.add_mesh(polydata, scalars = color, cmap = cmap, show_edges = True)
         plotter.add_text(text)
@@ -495,7 +511,7 @@ class trimesh():
             plotter.add_arrows(cent, arrows_tri, mag  = .01, color = 'g')
 
         if len(arrows_vert) > 1:
-            plotter.add_arrows(self.vertices, arrows_vert, mag  = 1, color = 'g')
+            plotter.add_arrows(self.vertices, arrows_vert, mag  = 100, color = 'g')
         plotter.view_xy()
 
 

@@ -71,6 +71,10 @@ def adjacency_matrix_fmm(mesh, p_max =.05,  p_bins = 5, t_bins = 16, range_ind =
 
         pnt_2d = np.array(pnt_2d)
         if len(pnt_2d)>0:
+            # Correct here with the calculated vector field
+            # Change code to make use of complex numbers
+            # Maybe not sparse? Percentage wise this is not the best optimization
+
             angle = np.arccos(np.clip(pnt_2d[:,0],-1,1))
             angle[pnt_2d[:,1]< 0] = 2*np.pi - angle[pnt_2d[:,1] < 0]
 
