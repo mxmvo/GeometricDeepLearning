@@ -5,11 +5,13 @@ sys.path.append('..')
 from modules.trimesh import trimesh
 from modules.fast_marching_method import FMM
 from modules.gradient_walk.linear_walk import LinearWalk
-#from modules.ddg import discrete_gradient
+from modules.ddg import discrete_connection_laplacian, mean_dist, discrete_gradient
 #from modules.geometry_functions import discrete_gradient
 from plyfile import PlyData, PlyElement
 from tqdm import tqdm
 from glob import glob
+
+from scipy.sparse.linalg import spsolve
 
 
 def adjacency_matrix_fmm(mesh, p_max =.05,  p_bins = 5, t_bins = 16, range_ind = None):
@@ -22,6 +24,13 @@ def adjacency_matrix_fmm(mesh, p_max =.05,  p_bins = 5, t_bins = 16, range_ind =
     # Use the Fast Marching Method to calculate distances
     fmm = FMM(mesh)
     
+
+    conn_laplace, area_mat = discrete_connection_laplacian(mesh)
+    h2 = mean_dist(mesh.vertices[mesh.triangles])
+    X = np.zeros((num_vert, 1), dtype = np.csingle)
+    X[0] = 1+0j
+    angle_field = spsolve((area_mat-h2*conn_laplace), X)
+    angle_field = np.angle(angle_field) 
     # Keep track of indices
     row_coo = []
     col_coo = []
@@ -61,7 +70,9 @@ def adjacency_matrix_fmm(mesh, p_max =.05,  p_bins = 5, t_bins = 16, range_ind =
             indices.append(path['start_ind'])
             
             pnt = mesh.mesh_to_chart(path['points'][-1], path['faces'][-1], nbh)
-            pnt_2d.append( pnt/(np.linalg.norm(pnt)))
+            
+            #pnt_2d.append( pnt/(np.linalg.norm(pnt)))
+            angle.append(np.angle(pnt[0]+pnt[1]*1j))
             
         # Add the origin
         row_coo.append(ind)
@@ -70,19 +81,21 @@ def adjacency_matrix_fmm(mesh, p_max =.05,  p_bins = 5, t_bins = 16, range_ind =
         radius_coo.append(0)
 
         pnt_2d = np.array(pnt_2d)
-        if len(pnt_2d)>0:
+        #if len(pnt_2d)>0:
+        if len(angle) > 0:
             # Correct here with the calculated vector field
             # Change code to make use of complex numbers
             # Maybe not sparse? Percentage wise this is not the best optimization
 
-            angle = np.arccos(np.clip(pnt_2d[:,0],-1,1))
-            angle[pnt_2d[:,1]< 0] = 2*np.pi - angle[pnt_2d[:,1] < 0]
+            #angle = np.arccos(np.clip(pnt_2d[:,0],-1,1))
+            #angle[pnt_2d[:,1]< 0] = 2*np.pi - angle[pnt_2d[:,1] < 0]
 
             angle_dict = dict(zip(indices, angle))
 
 
             for v_ind in angle_dict.keys():
-                t = min(int((angle_dict[v_ind])/(2*np.pi)*t_bins), t_bins - 1)
+                a = (angle_dict[v_ind]-angle_field[ind]) % (np.pi*2)
+                t = min(int(a/(2*np.pi)*t_bins), t_bins - 1)
                 r = min(int((phi[v_ind]/p_max)*p_bins), p_bins - 1)
                 
                 row_coo.append(ind)
@@ -92,6 +105,72 @@ def adjacency_matrix_fmm(mesh, p_max =.05,  p_bins = 5, t_bins = 16, range_ind =
                 
     adj_mat = np.zeros((num_vert, num_vert,p_bins,t_bins), dtype = np.int8)
     adj_mat[row_coo,col_coo,radius_coo,angle_coo] = 1
+
+    return adj_mat 
+
+def adjacency_matrix_heat(mesh, p_max =.05,  p_bins = 5, t_bins = 16, range_ind = None):
+    
+    num_vert = len(mesh.vertices)
+
+    if range_ind == None:
+        range_ind = range(num_vert)
+
+    # Use the Fast Marching Method to calculate distances
+    fmm = FMM(mesh)
+    
+
+    conn_laplace, area_mat = discrete_connection_laplacian(mesh)
+    h2 = mean_dist(mesh.vertices[mesh.triangles])
+    X = np.zeros((num_vert, 1), dtype = np.csingle)
+    X[0] = 1+0j
+    angle_field = spsolve((area_mat-h2*conn_laplace), X)
+    angle_field = np.angle(angle_field) 
+    # Keep track of indices
+    row_coo = []
+    col_coo = []
+    angle_coo = []
+    radius_coo = []
+    
+    for ind in tqdm(range_ind):
+
+        # Calculate the distances.
+        phi = fmm.run([ind], max_distance = 2*p_max)
+        phi[phi == np.inf] = 3*p_max
+        
+        # Propagating the points backwards
+        # Find the points that we are interested in
+        interior = np.where(phi < p_max)[0]
+
+        grad_phi = discrete_gradient(mesh, phi)
+        grad_dict = mesh.grad_vertex_nbh(set(interior)-{ind}, grad_phi)
+
+        angle = lambda x: np.angle(x[0]+x[1]*1j)
+        angle_dict = {i: angle(grad_dict[i]) for i in grad_dict }
+
+            
+        # Add the origin
+        row_coo.append(ind)
+        col_coo.append(ind)
+        angle_coo.append(0)
+        radius_coo.append(0)
+
+        if len(angle_dict) > 0:
+            # Correct here with the calculated vector field
+            # Change code to make use of complex numbers
+            # Maybe not sparse? Percentage wise this is not the best optimization
+
+            for v_ind in angle_dict.keys():
+                a = (angle_dict[v_ind]-angle_field[ind]) % (np.pi*2)
+                t = min(int(a/(2*np.pi)*t_bins), t_bins - 1)
+                r = min(int((phi[v_ind]/p_max)*p_bins), p_bins - 1)
+                
+                row_coo.append(ind)
+                col_coo.append(v_ind)
+                angle_coo.append(t)
+                radius_coo.append(r)
+                
+    adj_mat = np.zeros((num_vert, num_vert,t_bins,p_bins), dtype = np.int8)
+    adj_mat[row_coo,col_coo,angle_coo,radius_coo] = 1
 
     return adj_mat 
  

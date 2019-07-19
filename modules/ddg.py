@@ -29,7 +29,27 @@ def calculate_circumcenter(x):
     den = 2*np.linalg.norm(cross_ab, axis = 1, keepdims = True)**2
     return num/(den)
 
+def mean_dist(tri):
+    tri_0 = tri[:,0]-tri[:,1]
+    tri_1 = tri[:,1]-tri[:,2]
+    tri_2 = tri[:,2]-tri[:,0]
 
+    tri_0_norm = np.linalg.norm(tri_0, axis = -1)
+    tri_1_norm = np.linalg.norm(tri_1, axis = -1)
+    tri_2_norm = np.linalg.norm(tri_2, axis = -1)
+
+    return ((tri_0_norm.mean()+ tri_1_norm.mean() + tri_2_norm.mean())/3)**2
+
+def max_dist(tri):
+    tri_0 = tri[:,0]-tri[:,1]
+    tri_1 = tri[:,1]-tri[:,2]
+    tri_2 = tri[:,2]-tri[:,0]
+
+    tri_0_norm = np.linalg.norm(tri_0, axis = -1)
+    tri_1_norm = np.linalg.norm(tri_1, axis = -1)
+    tri_2_norm = np.linalg.norm(tri_2, axis = -1)
+
+    return max((tri_0_norm.max(), tri_1_norm.max(), tri_2_norm.max()))**2
 
 
 def calculate_dual_area(m,x):
@@ -133,4 +153,40 @@ def discrete_laplacian(mesh, mode = 'Centric'):
         area_mat = make_area_matrix_bary(tri, tri_ind, num_vert)
 
     return cotan_mat, area_mat
+
+def make_rotation_matrix(mesh):
+    row = []
+    col = []
+    data = []
+    
+    num_vert = len(mesh.vertices)
+    for i in range(num_vert):
+        chart_i = mesh.chart(i)
+        ind_i = chart_i['sort_ind'][:-1]
+        a_i = chart_i['angles'][:-1]
+        row.append(i)
+        col.append(i)
+        data.append(1)
+        for n, j in enumerate(ind_i):
+            chart_j = mesh.chart(j)
+            a_j = chart_j['angles']
+            m = np.where(np.array(chart_j['sort_ind']) == i)[0][0]
+            
+            a_ij = a_i[n]
+            a_ji = a_j[m]
+            
+            row.append(i)
+            col.append(j)
+            data.append(np.exp(1j*(a_ij-a_ji+np.pi)))
+        
+    a_mat = sparse.coo_matrix((data,(row,col)), shape = (num_vert,num_vert), dtype = np.csingle)
+    return a_mat
+
+def discrete_connection_laplacian(mesh, mode = 'Centric'):
+    rot_mat = make_rotation_matrix(mesh)
+    cot_mat, area_mat = discrete_laplacian(mesh, mode)
+    disc_conn_laplace = rot_mat.multiply(cot_mat)
+    return disc_conn_laplace, area_mat
+
+
 
