@@ -72,19 +72,20 @@ def dist_mat(p_bins= 5, t_bins = 16):
     return dist
 
 dist = dist_mat()
-def big_prob_mat(mesh, adj_mat, dist = dist):
-    N, _, T, R = adj_mat.shape
+def big_prob_mat(mesh, p_mat, dist = dist):
+    N, _, R, T = adj_mat.shape
     B = T*R
     
     A_mat = vertex_area(mesh)
-    
-    p_mat = adj_mat.reshape(N,N,B)
+
+    p_mat = p_mat.transpose(0,1,3,2)
+    p_mat = p_mat.reshape(N,N,B)
     
     # Insert the vertex areas
     # [N,N,B] hadamard [1,N,1]
     p_mat = np.multiply(p_mat, A_mat[np.newaxis,:,np.newaxis])
     
-    # Insert the probabilities and normalise
+    # Insert the probabilities and normalize
     # [N,N,B] [N,B,B] => [N,N,B]
     p_mat = np.matmul(p_mat, dist)
     
@@ -100,21 +101,29 @@ def read_ply(f_name):
     data_tri = np.vstack(data['face'].data['vertex_indices'])
     return trimesh(data_vert, data_tri)
 
-data_path_in = '/Users/maximoldenbeek/Dropbox/Thesis/datasets/MPI-FAUST/training/registrations'
-data_path_out = '/Users/maximoldenbeek/Dropbox/Thesis/datasets/FAUST_preprocesed/alligned'
-data_path_out_1 = '/Users/maximoldenbeek/Dropbox/Thesis/datasets/FAUST_preprocesed/alligned_adj'
+def read_adj(f_name):
+    adj_mat = scipy.sparse.load_npz(f_name)
+    N= adj_mat.shape[0]
+    p_mat = adj_mat.toarray().reshape((N,N,5,16))
+    return p_mat
+
+data_path_reg = '/Users/maximoldenbeek/Dropbox/Thesis/datasets/MPI-FAUST/training/registrations'
+data_path_bin = '/Users/maximoldenbeek/Dropbox/Thesis/datasets/FAUST_preprocesed/alligned'
+data_path_out = '/Users/maximoldenbeek/Dropbox/Thesis/datasets/FAUST_preprocesed/alligned_adj'
 
 
-registrations = sorted(glob(os.path.join(data_path_in,'*.ply')))
+bin_matrices = sorted(glob(os.path.join(data_path_bin,'*.npz')))
+registrations = sorted(glob(os.path.join(data_path_reg,'*.ply')))
 
-for file_path in registrations:
-    file = re.findall('tr_.*?ply$', file_path)[0]
+for i, file_path in enumerate(tqdm(bin_matrices)):
+    mesh_path = registrations[i]
     
-    file_out = re.sub('\.ply$','_all.npz',file)
-    file_out_1 = re.sub('\.ply$','_all_conn.pt',file)
+    file = re.findall('tr_.*?npz$', file_path)[0]
+    
+
+    file_out = re.sub('\.npz$','_conn.pt',file)
     
     path_out = os.path.join(data_path_out, file_out)
-    path_out_1 = os.path.join(data_path_out_1, file_out_1)
     
     print('-'*20)
     print('Starting:',file)
@@ -122,15 +131,8 @@ for file_path in registrations:
         print('File {} already exists, continuing with next'.format(file))
         continue
     
-    mesh = read_ply(file_path)
-    adj_mat = adjacency_matrix_fmm(mesh,p_max = 0.03)
-
-    print('Saving sparse matrix', end = ' : ')
-    num_vert = len(mesh.vertices)
-    scipy.sparse.save_npz(path_out, scipy.sparse.csc_matrix(adj_mat.reshape(num_vert,-1))) 
-    print('Succesful')
-    print('Smoothing ....')
-    
+    mesh = read_ply(mesh_path)
+    adj_mat = read_adj(file_path)
     mat = big_prob_mat(mesh, adj_mat)
     mat = scipy.sparse.coo_matrix(mat.reshape(-1,6890))
     i = torch.LongTensor([mat.row,mat.col])
@@ -138,7 +140,7 @@ for file_path in registrations:
     s = torch.Size(mat.shape)
     
     print('Saving smooth matrix', end = ' : ')
-    torch.save({'ind':i, 'data':v, 'size':s}, path_out_1)
+    torch.save({'ind':i, 'data':v, 'size':s}, path_out)
     print('Succesful')
 
     del mesh, mat, adj_mat
