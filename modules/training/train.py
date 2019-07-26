@@ -13,7 +13,13 @@ def write_log(line, file):
         f.write(line)
 
 def training(model, dataloader, params, batch_loss):
-    opt = torch.optim.Adam(model.parameters(), lr = params['lr'])
+    if params['optim'] == 'Adam':
+        opt = torch.optim.Adam(model.parameters(), lr = params['lr'])
+    elif params['optim'] == 'Adadelta':
+        opt = torch.optim.Adadelta(model.parameters(), lr = params['lr'])
+    else:
+        raise ValueError('Unknown optimizer')
+        
     vert_list = list(range(params['n_vert']))
     batch_size = params['batch_size']
     len_data_set = len(dataloader)
