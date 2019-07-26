@@ -21,8 +21,9 @@ def training(model, dataloader, params, batch_loss):
     log_file = os.path.join(params['model_dir'], 'log.txt')
     write_log('Parameters: ' +str(params), log_file)
     t_start = t_last = time.time()
+    avg_loss = []
+
     for ep in range(params['epochs']):
-        avg_loss = []
         for i, batch in enumerate(dataloader):
             inp_1 , inp_2 = batch
 
@@ -51,7 +52,7 @@ def training(model, dataloader, params, batch_loss):
 
             loss.backward()
             t3 = time.time()
-            print('\r{:>10}: {:.5f}, [back, forward, data] = {}'.format(ep*len_data_set + i,loss, [t3-t2, t2-t1, t1-t0]), end = '')
+            print('\r{:>10}: {:.5f}'.format(ep*len_data_set + i,loss), end = '')
             avg_loss.append(loss.data.cpu().numpy())
             opt.step()
             opt.zero_grad()
@@ -60,9 +61,9 @@ def training(model, dataloader, params, batch_loss):
             with torch.no_grad():
                 model.update_layers()
 
-            if (i % params['it_print']) == 0:
+            if ((params['it']+ep*len_data_set+i) % params['it_print']) == 0:
                 t_new = time.time()
-                line ='\n Tot time :{:.2f} min, Iter time: {:.2f} sec, avg loss: {}'.format((t_new-t_start)/60, t_new-t_last, np.mean(avg_loss[-params['it_print']:])) 
+                line ='\n Iter: {}, Tot time :{:.2f} min, sec, avg loss: {}'.format(ep*len_data_set + i, (t_new-t_start)/60,  np.mean(avg_loss[-params['it_print']:])) 
                 print(line)
                 write_log(line, log_file)
                 t_last = t_new
