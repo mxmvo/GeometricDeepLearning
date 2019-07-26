@@ -26,20 +26,22 @@ c_files = sorted(glob.glob('../dataset/alligned_adj/*'))[:70]
 params = {'batch_size':500,
          'lr': 0.01,
          'epochs': 100,
-         'model_dir': '/home/maxim/models/equi_16_16_16/',
+         'model_dir': '/home/maxim/models/inv_16_16_16/',
          'p_bins': 5,
          't_bins': 16,
          'n_vert': 6890,
          'it_print': 50,
-         'it_save': 100,
+         'it_save': 500,
+         'it':None,
          'loss_mu': .2,
          'loss_gamma': .5,
-         'architecture': 'GCCN_4, equivariant',
+         'optim':'Adam',
+         'architecture': 'GCCN_3, invariant',
          'neurons': [150,16,16,16],
          'device': torch.device("cuda" if torch.cuda.is_available() else "cpu")}
 
 # Initialize Model
-model = GCCN_4(params['neurons'], device = params['device'])
+model = GCCN_3(params['neurons'], device = params['device'])
 
 
 dataset = BodyDataset(g_files,c_files)

@@ -80,6 +80,7 @@ class GCCN_2(nn.Module):
 class GCCN_3(nn.Module):
     def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16, device = 'cpu'):
         super(GCCN_3,self).__init__()
+        self.device = device
         self.linear_1 = nn.Linear(neurons[0], neurons[1])
         self.GC_1 = GeodesicLayer(neurons[1], neurons[2], device = device)
         self.GC_2 = GeodesicLayer(neurons[2], neurons[3], device = device)
@@ -108,10 +109,12 @@ class GCCN_3(nn.Module):
             
             it = re.findall('_([0-9]+).mdl',m)[0]
             params['it'] = int(it)
-            self.load_state_dict(torch.load(m))
+            with open(m, 'rb') as f:
+                s_model = torch.load(f, map_location = self.device)
+                self.load_state_dict(s_model[0])
             print('Loaded model: {}'.format(m))
-        except:
-            print('Couldn\'t load model')
+        except Exception as e:
+            print('Couldn\'t load model', e)
             params['it'] = 0
         return params
 
