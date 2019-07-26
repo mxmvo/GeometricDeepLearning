@@ -14,7 +14,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 
-from modules.training.models import GCCN_4, GCCN_3
+from modules.training.models import GCCN_4, GCCN_3, GCCN_2
 from modules.training.extra_layers import EquivariantLayer, GeodesicLayer, AMP
 from modules.training.loaders import BodyDataset
 from modules.training.train import training
@@ -22,11 +22,11 @@ from modules.training.loss import siamese_loss
 
 # Training files
 g_files = sorted(glob.glob('../dataset/g_func/*'))[:70]
-c_files = sorted(glob.glob('../dataset/conn/*'))[:70]
+c_files = sorted(glob.glob('../dataset/alligned_adj/*'))[:70]
 params = {'batch_size':500,
-         'lr': 0.001,
+         'lr': 0.01,
          'epochs': 100,
-         'model_dir': '/home/maxim/models/equi_A1/',
+         'model_dir': '/home/maxim/models/equi_16_16_16/',
          'p_bins': 5,
          't_bins': 16,
          'n_vert': 6890,
@@ -35,7 +35,7 @@ params = {'batch_size':500,
          'loss_mu': .2,
          'loss_gamma': .5,
          'architecture': 'GCCN_4, equivariant',
-         'neurons': [150,32,8,8],
+         'neurons': [150,16,16,16],
          'device': torch.device("cuda" if torch.cuda.is_available() else "cpu")}
 
 # Initialize Model

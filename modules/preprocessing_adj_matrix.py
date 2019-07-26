@@ -107,9 +107,9 @@ def read_adj(f_name):
     p_mat = adj_mat.toarray().reshape((N,N,5,16))
     return p_mat
 
-data_path_reg = '/Users/maximoldenbeek/Dropbox/Thesis/datasets/MPI-FAUST/training/registrations'
-data_path_bin = '/Users/maximoldenbeek/Dropbox/Thesis/datasets/FAUST_preprocesed/alligned'
-data_path_out = '/Users/maximoldenbeek/Dropbox/Thesis/datasets/FAUST_preprocesed/alligned_adj'
+data_path_reg = '/home/maxim/dataset/registrations'
+data_path_bin = '/home/maxim/dataset/alligned'
+data_path_out = '/home/maxm/dataset/alligned_adj'
 
 
 bin_matrices = sorted(glob(os.path.join(data_path_bin,'*.npz')))
