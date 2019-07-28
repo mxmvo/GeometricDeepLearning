@@ -49,7 +49,7 @@ def laplace_beltrami_eigenfunctions(trimesh, mode = 'Centric' ,**kwargs):
     val = 1/val[sort]
     vec = vec[:,sort]
 
-    return val, vec
+    return val, vec/np.linalg.norm(vec, axis = 0, keepdims = True)
 
 def geometry_functions(mesh, v_max = 2100, num_descr = 150 , k = 300):
     val, vec = laplace_beltrami_eigenfunctions(mesh, k = k)

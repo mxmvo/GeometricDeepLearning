@@ -73,7 +73,8 @@ class EquivariantLayer(nn.Module):
 
 
         if weights is None:
-            self.weights = nn.Parameter(torch.randn((self.C_in*self.R_in * self.B, self.C_out), dtype = torch.float).to(self.device))
+            w = torch.randn((self.C_in*self.R_in * self.B, self.C_out), dtype = torch.float)*math.sqrt(2./(self.C_in*self.R_in*self.B))
+            self.weights = nn.Parameter(w.to(self.device))
         else:
             self.weights = nn.Parameter(torch.from_numpy(weights).float()).to(self.device)
        

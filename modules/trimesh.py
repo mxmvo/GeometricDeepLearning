@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.cm as cm
 import time
 
-#import vtki
-#from vtki import PolyData
+import vtki
+from vtki import PolyData
 from .config import trimesh_config
 
 eps = np.finfo(np.float64).eps

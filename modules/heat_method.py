@@ -3,7 +3,7 @@ import scipy.sparse.linalg
 
 import numpy as np
 
-from modules.geometry_functions import make_area_matrix_centric, make_weight_matrix, calculate_cotangent, make_area_matrix_bary
+from modules.ddg import make_area_matrix_centric, make_area_matrix_bary, make_cotan_matrix, calculate_cotangent
 
 
 eps = np.finfo(np.float64).eps
@@ -43,7 +43,7 @@ class heat_method():
         self.tri_ind = triangles
 
         if L_c == None:
-            L_c = make_weight_matrix(self.tri, self.tri_ind, self.n)
+            L_c = make_cotan_matrix(self.tri, self.tri_ind, self.n)
 
         if A == None:
             A = make_area_matrix_centric(self.tri, self.tri_ind, self.n)
