@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import numpy as np
+
 class GeodesicLayer(nn.Module):
     '''
     An implementation of the Geodesic Convolution Layer. 
@@ -18,7 +20,8 @@ class GeodesicLayer(nn.Module):
         self.device = device
 
         if weights is None:
-            self.weights = nn.Parameter(torch.randn((self.B, self.inp, self.out), dtype = torch.float))
+            w = torch.randn((self.B, self.inp, self.out), dtype = torch.float)*np.sqrt(2./(self.B*self.inp))
+            self.weights = nn.Parameter(w)
         else:
             self.weights = nn.Parameter(torch.from_numpy(weights))
        
@@ -73,7 +76,7 @@ class EquivariantLayer(nn.Module):
 
 
         if weights is None:
-            w = torch.randn((self.C_in*self.R_in * self.B, self.C_out), dtype = torch.float)*math.sqrt(2./(self.C_in*self.R_in*self.B))
+            w = torch.randn((self.C_in*self.R_in * self.B, self.C_out), dtype = torch.float)*np.sqrt(2./(self.C_in*self.R_in*self.B))
             self.weights = nn.Parameter(w.to(self.device))
         else:
             self.weights = nn.Parameter(torch.from_numpy(weights).float()).to(self.device)

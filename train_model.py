@@ -26,7 +26,7 @@ c_files = sorted(glob.glob('../dataset/alligned_adj/*'))[:70]
 params = {'batch_size':500,
          'lr': 0.01,
          'epochs': 100,
-         'model_dir': '/home/maxim/models/inv_16_16/',
+         'model_dir': '/home/maxim/models/inv_16_16_bias/',
          'p_bins': 5,
          't_bins': 16,
          'n_vert': 6890,
