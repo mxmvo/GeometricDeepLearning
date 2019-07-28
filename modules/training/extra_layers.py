@@ -20,7 +20,8 @@ class GeodesicLayer(nn.Module):
         self.device = device
 
         if weights is None:
-            w = torch.randn((self.B, self.inp, self.out), dtype = torch.float)*np.sqrt(2./(self.B*self.inp))
+            w = torch.empty((self.B, self.inp, self.out), dtype = torch.float)
+            torch.nn.init.kaiming_normal_(w, nonlinearity='relu')
             self.weights = nn.Parameter(w)
         else:
             self.weights = nn.Parameter(torch.from_numpy(weights))
@@ -76,7 +77,8 @@ class EquivariantLayer(nn.Module):
 
 
         if weights is None:
-            w = torch.randn((self.C_in*self.R_in * self.B, self.C_out), dtype = torch.float)*np.sqrt(2./(self.C_in*self.R_in*self.B))
+            w = torch.randn((self.C_in*self.R_in * self.B, self.C_out), dtype = torch.float)
+            #torch.nn.init.kaiming_normal_(w, nonlinearity=relu)
             self.weights = nn.Parameter(w.to(self.device))
         else:
             self.weights = nn.Parameter(torch.from_numpy(weights).float()).to(self.device)

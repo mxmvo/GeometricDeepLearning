@@ -42,9 +42,9 @@ class GCCN_1(nn.Module):
 
 
 class GCCN_2(nn.Module):
-    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16, device = 'cpu'):
+    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16, device = 'cpu', l_bias = False):
         super(GCCN_2,self).__init__()
-        self.linear_1 = nn.Linear(neurons[0], neurons[1], bias = False)
+        self.linear_1 = nn.Linear(neurons[0], neurons[1], bias = l_bias)
         self.GC_1 = GeodesicLayer(neurons[1], neurons[2], device = device)
         self.device = device 
     
@@ -80,10 +80,10 @@ class GCCN_2(nn.Module):
         return params
 
 class GCCN_3(nn.Module):
-    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16, device = 'cpu'):
+    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16, device = 'cpu', l_bias = False):
         super(GCCN_3,self).__init__()
         self.device = device
-        self.linear_1 = nn.Linear(neurons[0], neurons[1], bias = False)
+        self.linear_1 = nn.Linear(neurons[0], neurons[1], bias = l_bias)
         self.GC_1 = GeodesicLayer(neurons[1], neurons[2], device = device)
         self.GC_2 = GeodesicLayer(neurons[2], neurons[3], device = device)
         
@@ -121,9 +121,9 @@ class GCCN_3(nn.Module):
         return params
 
 class GCCN_4(nn.Module):
-    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16, device = 'cpu'):
+    def __init__(self, neurons = [], weights = None, p_bins = 5, t_bins = 16, device = 'cpu', l_bias = False):
         super(GCCN_4,self).__init__()
-        self.linear_1 = nn.Linear(neurons[0], neurons[1], bias = False)
+        self.linear_1 = nn.Linear(neurons[0], neurons[1], bias = l_bias)
         self.GC_1 = EquivariantLayer(neurons[1], neurons[2], R_in = 1, R_out = t_bins, device = device)
         self.GC_2 = EquivariantLayer(neurons[2], neurons[3], R_in = t_bins, R_out = t_bins, device = device)
         self.amp = AMP(regular_size = 16)
