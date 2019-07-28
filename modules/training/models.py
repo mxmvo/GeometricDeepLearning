@@ -46,7 +46,7 @@ class GCCN_2(nn.Module):
         super(GCCN_2,self).__init__()
         self.linear_1 = nn.Linear(neurons[0], neurons[1])
         self.GC_1 = GeodesicLayer(neurons[1], neurons[2], device = device)
-        
+        self.device = device 
     
     def forward(self, x, conn):
         res = F.relu(self.linear_1(x))
@@ -70,10 +70,12 @@ class GCCN_2(nn.Module):
             
             it = re.findall('_([0-9]+).mdl',m)[0]
             params['it'] = int(it)
-            self.load_state_dict(torch.load(m))
+            with open(m, 'rb') as f:
+                s_model = torch.load(f, map_location = self.device)
+                self.load_state_dict(s_model[0])
             print('Loaded model: {}'.format(m))
-        except:
-            print('Couldn\'t load model')
+        except Exception as e:
+            print('Couldn\'t load model', e)
             params['it'] = 0
         return params
 
