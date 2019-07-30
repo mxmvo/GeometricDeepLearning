@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.cm as cm
 import time
 
-#import vtki
-#from vtki import PolyData
+import vtki
+from vtki import PolyData
 from .config import trimesh_config
 
 eps = np.finfo(np.float64).eps
@@ -492,7 +492,7 @@ class trimesh():
         if len(color) == 0:
             color = self.vertices[:,0]
 
-        plotter.add_mesh(polydata, scalars = color, cmap = cmap, show_edges = True)
+        plotter.add_mesh(polydata, scalars = color, cmap = cmap, show_edges = True, rng = [0,1])
         plotter.add_text(text)
         if len(ind)> 0:
             plotter.add_points(self.vertices[ind], point_size = 10, color = 'red')
