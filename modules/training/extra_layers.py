@@ -20,8 +20,8 @@ class GeodesicLayer(nn.Module):
         self.device = device
 
         if weights is None:
-            w = torch.empty((self.B, self.inp, self.out), dtype = torch.float)
-            torch.nn.init.kaiming_normal_(w, nonlinearity='relu')
+            w = torch.randn((self.B, self.inp, self.out), dtype = torch.float)
+            w = w*np.sqrt(2/(self.B*self.inp))
             self.weights = nn.Parameter(w)
         else:
             self.weights = nn.Parameter(torch.from_numpy(weights))
@@ -78,7 +78,7 @@ class EquivariantLayer(nn.Module):
 
         if weights is None:
             w = torch.randn((self.C_in*self.R_in * self.B, self.C_out), dtype = torch.float)
-            #torch.nn.init.kaiming_normal_(w, nonlinearity=relu)
+            w = w*np.sqrt(0.01)
             self.weights = nn.Parameter(w.to(self.device))
         else:
             self.weights = nn.Parameter(torch.from_numpy(weights).float()).to(self.device)
@@ -87,7 +87,7 @@ class EquivariantLayer(nn.Module):
         self.rotation_matrix = self.rotate(x)
 
         self.index_sparse = self.make_index_sparse(self.rotation_matrix)
-
+        
         self.update_layer_weights()
         '''
         self.index_matrix = torch.zeros((self.R_out,self.C_in * self.R_in * self.B, self.C_in * self.R_in * self.B), dtype = torch.float)
@@ -112,6 +112,7 @@ class EquivariantLayer(nn.Module):
 
     def update_layer_weights(self):
         l_weights = torch.sparse.mm(self.index_sparse, self.weights)
+
         self.l_weights = l_weights.reshape(self.C_in,self.R_in,self.B,self.R_out,self.C_out).permute(2,0,1,4,3).reshape(self.C_in*self.R_in*self.B,-1)
 
 
