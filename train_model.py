@@ -24,9 +24,9 @@ from modules.training.loss import siamese_loss
 g_files = sorted(glob.glob('../dataset/g_func/*'))[:70]
 c_files = sorted(glob.glob('../dataset/alligned_adj/*'))[:70]
 params = {'batch_size':500,
-         'lr': 0.01,
+         'lr': 0.001,
          'epochs': 100,
-         'model_dir': '/home/maxim/models/inv_16_16_bias/',
+         'model_dir': '/home/maxim/models/equi_16_8_8_sigma/',
          'p_bins': 5,
          't_bins': 16,
          'n_vert': 6890,
@@ -36,12 +36,12 @@ params = {'batch_size':500,
          'loss_mu': .2,
          'loss_gamma': .5,
          'optim':'Adam',
-         'architecture': 'GCCN_2, invvariant',
-         'neurons': [150,16,16],
+         'architecture': 'GCCN_4, equivariant',
+         'neurons': [150,16,8,8],
          'device': torch.device("cuda" if torch.cuda.is_available() else "cpu")}
 
 # Initialize Model
-model = GCCN_2(params['neurons'], device = params['device'])
+model = GCCN_4(params['neurons'], device = params['device'])
 
 
 dataset = BodyDataset(g_files,c_files)
