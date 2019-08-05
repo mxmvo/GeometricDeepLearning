@@ -21,7 +21,7 @@ class GeodesicLayer(nn.Module):
 
         if weights is None:
             w = torch.randn((self.B, self.inp, self.out), dtype = torch.float)
-            w = w*np.sqrt(2/(self.B*self.inp))
+            w = w*np.sqrt(2/(self.inp))
             self.weights = nn.Parameter(w)
         else:
             self.weights = nn.Parameter(torch.from_numpy(weights))
@@ -77,8 +77,10 @@ class EquivariantLayer(nn.Module):
 
 
         if weights is None:
-            w = torch.randn((self.C_in*self.R_in * self.B, self.C_out), dtype = torch.float)
-            w = w*np.sqrt(2/(self.C_in*self.B*self.R_in))
+            std = np.sqrt(2/(self.B*self.C_in*self.R_in))
+            w = torch.empty((self.C_in*self.R_in * self.B, self.C_out), dtype = torch.float)
+            w.normal_(mean = 0, std = std)
+            #w.uniform_(-std,std)
             #torch.nn.init.kaiming_normal_(w, nonlinearity='relu')
 
             self.weights = nn.Parameter(w.to(self.device))
@@ -194,5 +196,6 @@ class AMP(nn.Module):
         res = x.view(-1,self.R)
         
         res = torch.max(res, dim = -1)[0]
+        #res = torch.sum(res, dim = -1)
         return res.view(N, -1)
     

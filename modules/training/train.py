@@ -45,6 +45,7 @@ def training(model, dataloader, params, batch_loss):
             c_1, c_2 = c_1.to(params['device']), c_2.to(params['device'])
 
             t1 = time.time()
+            model.update_layers()
             out_1 = model(g_1, c_1)
             out_2 = model(g_2, c_2)
             t2 = time.time()
@@ -64,8 +65,8 @@ def training(model, dataloader, params, batch_loss):
             opt.zero_grad()
             
             # Update the weights in the rotation matrix
-            with torch.no_grad():
-                model.update_layers()
+            #with torch.no_grad():
+            #    model.update_layers()
 
             if ((params['it']+ep*len_data_set+i) % params['it_print']) == 0:
                 t_new = time.time()

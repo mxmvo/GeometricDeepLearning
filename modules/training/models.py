@@ -130,8 +130,8 @@ class GCCN_4(nn.Module):
         
     
     def forward(self, x, conn):
-        res = F.relu(self.linear_1(x))
-        res = F.relu(self.GC_1(res, conn))
+        res = F.elu(self.linear_1(x))
+        res = F.elu(self.GC_1(res, conn))
         res = self.GC_2(res,conn)
         res = self.amp(res)
         norm = torch.norm(res.squeeze(), dim = - 1, keepdim = True)
