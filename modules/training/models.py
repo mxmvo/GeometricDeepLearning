@@ -101,8 +101,6 @@ class GCCN_3(nn.Module):
     def load_model(self, params, it = None):
         try:
             if it == None:
-                models = sorted(glob.glob(params['model_dir']+'*.mdl'))
-            
                 I = [ int(re.findall(r'_([0-9]+).mdl', i)[0]) for i in models]
                 m = models[np.argmax(I)]
             else:
@@ -130,8 +128,8 @@ class GCCN_4(nn.Module):
         
     
     def forward(self, x, conn):
-        res = F.elu(self.linear_1(x))
-        res = F.elu(self.GC_1(res, conn))
+        res = F.relu(self.linear_1(x))
+        res = F.relu(self.GC_1(res, conn))
         res = self.GC_2(res,conn)
         res = self.amp(res)
         norm = torch.norm(res.squeeze(), dim = - 1, keepdim = True)

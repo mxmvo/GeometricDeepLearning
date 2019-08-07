@@ -20,8 +20,8 @@ class GeodesicLayer(nn.Module):
         self.device = device
 
         if weights is None:
-            w = torch.randn((self.B, self.inp, self.out), dtype = torch.float)
-            w = w*np.sqrt(2/(self.inp))
+            w = torch.empty((self.B, self.inp, self.out), dtype = torch.float)
+            w.normal_(mean = 0,std = np.sqrt(2/(self.inp*self.B)))
             self.weights = nn.Parameter(w)
         else:
             self.weights = nn.Parameter(torch.from_numpy(weights))
