@@ -37,8 +37,8 @@ def training(model, dataloader, params, batch_loss):
             d_1, d_2 = inp_1[1], inp_2[1]
 
             t0 = time.time()
-            c_1 = torch.sparse.FloatTensor(d_1['ind'][0], d_1['data'][0], torch.Size(d_1['size']))
-            c_2 = torch.sparse.FloatTensor(d_2['ind'][0], d_2['data'][0], torch.Size(d_2['size']))
+            c_1 = torch.sparse.FloatTensor(d_1['ind'][0].to(torch.long), d_1['data'][0].to(torch.float), torch.Size(d_1['size']))
+            c_2 = torch.sparse.FloatTensor(d_2['ind'][0].to(torch.long), d_2['data'][0].to(torch.float), torch.Size(d_2['size']))
             
             # To device
             g_1, g_2 = g_1.to(params['device']), g_2.to(params['device'])

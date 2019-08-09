@@ -26,7 +26,7 @@ c_files = sorted(glob.glob('../dataset/alligned_adj/*'))[:70]
 params = {'batch_size':1500,
          'lr': 0.001,
          'epochs': 100,
-         'model_dir': '/home/maxim/models/equi_32_8_8_run_0/',
+         'model_dir': '/home/maxim/models/heat_equi_16_16_16_run_1/',
          'p_bins': 5,
          't_bins': 16,
          'n_vert': 6890,
@@ -36,9 +36,9 @@ params = {'batch_size':1500,
          'loss_mu':.2,
          'loss_gamma': .5,
          'optim':'Adam',
-         'architecture': 'GCCN_4, equivariant relu',
-         'neurons': [150,32,8,8],
-         'device': torch.device("cuda" if torch.cuda.is_available() else "cpu")}
+         'architecture': 'GCCN_3, equivariant relu',
+         'neurons': [150,16,16,16],
+         'device': torch.device("cuda:1")}
 
 # Initialize Model
 model = GCCN_4(params['neurons'], device = params['device'])
