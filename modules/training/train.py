@@ -31,7 +31,9 @@ def training(model, dataloader, params, batch_loss):
 
     for ep in range(params['epochs']):
         for i, batch in enumerate(dataloader):
-            inp_1 , inp_2 = batch
+            inp_1 , inp_2, indices = batch
+
+            ind, pos, neg = indices[0][0], indices[1][0], indices[2][0] 
 
             g_1, g_2 = inp_1[0][0], inp_2[0][0]
             d_1, d_2 = inp_1[1], inp_2[1]
@@ -40,6 +42,8 @@ def training(model, dataloader, params, batch_loss):
             c_1 = torch.sparse.FloatTensor(d_1['ind'][0], d_1['data'][0], torch.Size(d_1['size']))
             c_2 = torch.sparse.FloatTensor(d_2['ind'][0], d_2['data'][0], torch.Size(d_2['size']))
             
+
+
             # To device
             g_1, g_2 = g_1.to(params['device']), g_2.to(params['device'])
             c_1, c_2 = c_1.to(params['device']), c_2.to(params['device'])
@@ -49,11 +53,12 @@ def training(model, dataloader, params, batch_loss):
             out_1 = model(g_1, c_1)
             out_2 = model(g_2, c_2)
             t2 = time.time()
-            ind = np.random.choice(vert_list, size = 2*batch_size, replace = False)
-
-            out = out_1[ind[:batch_size]]
-            out_pos = out_2[ind[:batch_size]]
-            out_neg = out_2[ind[batch_size:]]
+            
+            
+            
+            out = out_1[ind]
+            out_pos = out_2[pos]
+            out_neg = out_2[neg]
 
             loss = batch_loss(out,out_pos, out_neg, params)
 

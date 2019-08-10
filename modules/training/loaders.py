@@ -1,13 +1,14 @@
 import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
+import scipy.sparse as sparse
 
 
 
 class BodyDataset(Dataset):
     """Body Dataset."""
 
-    def __init__(self, g_files, c_files, transform=None):
+    def __init__(self, g_files, c_files, p_files, samples, transform=None):
         """
         Args:
             g_files: list of files containing the geometry functions
@@ -15,7 +16,9 @@ class BodyDataset(Dataset):
         """
         self.g_files = g_files
         self.c_files = c_files
-        
+        self.p_files = p_files
+        self.samples = samples
+
         self.transform = transform
 
     def __len__(self):
@@ -32,14 +35,28 @@ class BodyDataset(Dataset):
         g_1 = torch.load(self.g_files[idx])
         g_2 = torch.load(self.g_files[r_idx])
         
-        #i_1, v_1, s_1 = self.sparsetensor(sparse.load_npz(self.c_files[idx]))
-        #i_2, v_2, s_2  = self.sparsetensor(sparse.load_npz(self.c_files[r_idx]))
+        points = sparse.load_npz(self.p_files[r_idx])
         
+        ind, pos, neg = self.sampling(points)
+        
+
         dic_1 = torch.load(self.c_files[idx])
         dic_2 = torch.load(self.c_files[r_idx])
         
-        return (g_1, dic_1), (g_2, dic_2)
+        return (g_1, dic_1), (g_2, dic_2), (ind, pos, neg)
     
+    def sampling(self,points):
+        indices = np.random.choice(list(range(6890)), size = self.samples, replace = False)
+        pos = np.zeros_like(indices)
+        neg = np.zeros_like(indices)
+
+        for i, ind in enumerate(indices):
+            row = points[ind].todense()
+            pos[i] = np.random.choice(np.where(row == 1)[1], size = 1 )
+            neg[i] = np.random.choice(np.where(row == 0)[1], size = 1 )
+
+        return torch.LongTensor(indices), torch.LongTensor(pos), torch.LongTensor(neg)
+
     def sparsetensor(self,sparse_mat):
         
         i = torch.LongTensor([sparse_mat.row,sparse_mat.col])

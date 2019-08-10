@@ -142,10 +142,10 @@ def adjacency_matrix_heat(mesh, p_max =.05,  p_bins = 5, t_bins = 16, range_ind 
 
         phi, _ = heat.run(v)
 
-        hor_angle = X_hor[v]
-        X = np.zeros((num_vert,1), dtype = np.csingle)
-        X[v] = hor_angle/np.abs(hor_angle)
-        X_hor = mat_con(X)    
+        #hor_angle = X_hor[v]
+        #X = np.zeros((num_vert,1), dtype = np.csingle)
+        #X[v] = hor_angle/np.abs(hor_angle)
+        #X_hor = mat_con(X)    
         
         x_tilde = np.zeros(len(mesh.vertices), dtype = np.csingle)
         ind = mesh.chart(v)['sort_ind']

@@ -136,8 +136,8 @@ for file_path in registrations:
 
     mat = big_prob_mat(mesh, adj_mat)
     mat = scipy.sparse.coo_matrix(mat.reshape(-1,6890))
-    i = torch.LongTensor([mat.row,mat.col])
-    v = torch.FloatTensor(mat.data)
+    i = torch.IntTensor([mat.row,mat.col])
+    v = torch.HalfTensor(mat.data)
     s = torch.Size(mat.shape)
     
     print('Saving smooth matrix', end = ' : ')
