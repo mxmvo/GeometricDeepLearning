@@ -30,7 +30,7 @@ print(len(p_files))
 params = {'batch_size':1000,
          'lr': 0.001,
          'epochs': 100,
-         'model_dir': '/Users/maximoldenbeek/Dropbox/Thesis/code/model/pif/',
+         'model_dir': '/home/maxim/models/heat_equi_16_16_16_run_1/',
          'p_bins': 5,
          't_bins': 16,
          'n_vert': 6890,
@@ -40,9 +40,8 @@ params = {'batch_size':1000,
          'loss_mu':.2,
          'loss_gamma': .5,
          'optim':'Adam',
-         'architecture': 'GCCN_3, equivariant sum loss',
          'neurons': [150,16,16,16],
-         'device': torch.device("cuda" if torch.cuda.is_available() else "cpu")}
+         'device': torch.device("cuda:1")}
 
 # Initialize Model
 model = GCCN_3(params['neurons'], device = params['device'])

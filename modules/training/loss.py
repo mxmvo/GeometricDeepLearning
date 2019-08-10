@@ -11,4 +11,4 @@ def siamese_loss(out, out_pos, out_neg,params):
     
     neg_term = (mu-neg_term)
     neg_term = torch.max(neg_term, torch.Tensor([0]).to(params['device']))**2
-    return (1-gamma)*torch.sum(pos_term)+gamma*torch.sum(neg_term)
+    return (1-gamma)*torch.mean(pos_term)+gamma*torch.mean(neg_term)

@@ -101,8 +101,6 @@ class GCCN_3(nn.Module):
     def load_model(self, params, it = None):
         try:
             if it == None:
-                models = sorted(glob.glob(params['model_dir']+'*.mdl'))
-            
                 I = [ int(re.findall(r'_([0-9]+).mdl', i)[0]) for i in models]
                 m = models[np.argmax(I)]
             else:
