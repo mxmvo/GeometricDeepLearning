@@ -21,30 +21,28 @@ from modules.training.train import training
 from modules.training.loss import siamese_loss
 
 # Training files
-g_files = sorted(glob.glob('../../datasets/FAUST_preprocesed/g_func/*'))[:70]
-c_files = sorted(glob.glob('../../datasets/FAUST_preprocesed/alligned_adj/*'))[:70]
-p_files = sorted(glob.glob('../../datasets/FAUST_preprocesed/good_points/*.npz'))[:70]
-
-print(len(p_files))
+g_files = sorted(glob.glob('../dataset/g_func/*'))[:70]
+c_files = sorted(glob.glob('../dataset/alligned_adj/*'))[:70]
+p_files = sorted(glob.glob('../dataset/good_points/*.npz'))[:70]
 
 params = {'batch_size':1000,
          'lr': 0.001,
          'epochs': 100,
-         'model_dir': '/home/maxim/models/heat_equi_16_16_16_run_1/',
+         'model_dir': '/home/maxim/models/good_equi_64_32_16_run_0/',
          'p_bins': 5,
          't_bins': 16,
          'n_vert': 6890,
-         'it_print': 50,
-         'it_save': 100,
+         'it_print':100,
+         'it_save': 500,
          'it':None,
          'loss_mu':.2,
          'loss_gamma': .5,
          'optim':'Adam',
-         'neurons': [150,16,16,16],
-         'device': torch.device("cuda:1")}
+         'neurons': [150,64,32,16],
+         'device': torch.device("cuda:0")}
 
 # Initialize Model
-model = GCCN_3(params['neurons'], device = params['device'])
+model = GCCN_4(params['neurons'], device = params['device'])
 
 
 dataset = BodyDataset(g_files,c_files, p_files, samples = params['batch_size'])
