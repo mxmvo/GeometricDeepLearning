@@ -8,7 +8,7 @@ import scipy.sparse as sparse
 class BodyDataset(Dataset):
     """Body Dataset."""
 
-    def __init__(self, g_files, c_files, p_files, samples, transform=None):
+    def __init__(self, g_files, c_files, p_files, samples, range_list = list(range(6890)), transform=None):
         """
         Args:
             g_files: list of files containing the geometry functions
@@ -18,6 +18,7 @@ class BodyDataset(Dataset):
         self.c_files = c_files
         self.p_files = p_files
         self.samples = samples
+        self.range_list = range_list
 
         self.transform = transform
 
@@ -46,7 +47,7 @@ class BodyDataset(Dataset):
         return (g_1, dic_1), (g_2, dic_2), (ind, pos, neg)
     
     def sampling(self,points):
-        indices = np.random.choice(list(range(6890)), size = self.samples, replace = False)
+        indices = np.random.choice(self.range_list, size = self.samples, replace = False)
         pos = np.zeros_like(indices)
         neg = np.zeros_like(indices)
 
