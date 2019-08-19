@@ -73,7 +73,7 @@ def training(model, dataloader, params, batch_loss):
             #with torch.no_grad():
             #    model.update_layers()
 
-            if ((params['it']+ep*len_data_set+i) % params['it_print']) == 0:
+            if ((params['it']+ep*len_data_set+i+1) % params['it_print']) == 0:
                 t_new = time.time()
                 line ='\n Iter: {}, Tot time :{:.2f} min, sec, avg loss: {}'.format(ep*len_data_set + i, (t_new-t_start)/60,  np.mean(avg_loss[-params['it_print']:])) 
                 print(line)
@@ -81,7 +81,7 @@ def training(model, dataloader, params, batch_loss):
                 t_last = t_new
                 #avg_loss = []
 
-            if ((params['it']+ep*len_data_set+i) % params['it_save']) == 0:
+            if ((params['it']+ep*len_data_set+i+1) % params['it_save']) == 0:
                 m_file = os.path.join(params['model_dir'], 'descr_'+str(params['it']+ep*len_data_set+i)+'.mdl')
                 log_line = '\n Saving Model: {}'.format(m_file)
                 print(log_line, end ='...', flush = True)

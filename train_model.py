@@ -27,33 +27,33 @@ p_files = sorted(glob.glob('../dataset/good_points/*.npz'))[:70]
 
 params = {'batch_size':1000,
          'lr': 0.001,
-         'epochs': 100,
-         'model_dir': '/home/maxim/models/good_equi_64_32_16_run_0/',
+         'epochs': 44,
+         'model_dir': '/home/maxim/models/sub_equi_64_16_16_run_0/',
          'p_bins': 5,
          't_bins': 16,
          'n_vert': 6890,
          'it_print':100,
          'it_save': 500,
          'it':None,
-         'subset': False,
+         'subset': True,
          'loss_mu':.2,
          'loss_gamma': .5,
          'optim':'Adam',
-         'neurons': [150,64,32,16],
+         'neurons': [150,64,16,16],
          'device': torch.device("cuda:0")}
 
 # Initialize Model
 model = GCCN_4(params['neurons'], device = params['device'])
 
 
-dataset = BodyDataset(g_files,c_files, p_files, samples = params['batch_size'])
-if subset:
+if params['subset']:
     sub = np.load('dense_points.npy')
-sublist = np.where(sub ==  True)[0]
-    dataloader = DataLoader(dataset, range_list = sublist, batch_size=1, shuffle=True, num_workers=0)
-
+    sublist = np.where(sub ==  True)[0]
+    dataset = BodyDataset(g_files,c_files, p_files, range_list = sublist, samples = params['batch_size'])
 else:
-    dataloader = DataLoader(dataset, batch_size=1, shuffle=True, num_workers=0)
+    dataset = BodyDataset(g_files,c_files, p_files, samples = params['batch_size'])
+
+dataloader = DataLoader(dataset, batch_size=1, shuffle=True, num_workers=0)
 
 summary = os.path.join(params['model_dir'], 'summary')
 with open(summary, 'wb') as f:
