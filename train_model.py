@@ -49,7 +49,7 @@ model = GCCN_4(params['neurons'], device = params['device'])
 dataset = BodyDataset(g_files,c_files, p_files, samples = params['batch_size'])
 if subset:
     sub = np.load('dense_points.npy')
-    sublist = np.where(sub ==  True)[0]
+sublist = np.where(sub ==  True)[0]
     dataloader = DataLoader(dataset, range_list = sublist, batch_size=1, shuffle=True, num_workers=0)
 
 else:
