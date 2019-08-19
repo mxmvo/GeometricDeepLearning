@@ -143,16 +143,21 @@ class EquivariantLayer(nn.Module):
 
         
 
-    def angle_rotation(self,x):
+    def angle_rotation(self,x, num = 1):
         pif = x.view(-1, self.p)
 
-        pif_1 = torch.zeros(pif.shape, dtype = torch.int)
+        num = (self.t//self.R_out) %self.t
+        for i in range(num):
+            pif_1 = torch.zeros(pif.shape, dtype = torch.int)
 
-        for i in range(self.R_in):
-            pif_1[i*self.t:(i+1)*self.t-1,:] = pif[i*self.t+1:(i+1)*self.t,:]
-            pif_1[(i+1)*self.t-1,:] = pif[i*self.t,:]
-        
-        return pif_1.view(-1)
+            for i in range(self.R_in):
+                pif_1[i*self.t:(i+1)*self.t-1,:] = pif[i*self.t+1:(i+1)*self.t,:]
+                pif_1[(i+1)*self.t-1,:] = pif[i*self.t,:]
+            
+            pif = pif_1
+
+
+        return pif.view(-1)
 
     def kernel_rotation(self,x):
         pif = x.view(-1,self.t*self.p)
