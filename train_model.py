@@ -14,7 +14,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 
-from modules.training.models import GCCN_5, GCCN_4, GCCN_3, GCCN_2
+from modules.training.models import GCCN_6, GCCN_5, GCCN_4, GCCN_3, GCCN_2
 from modules.training.extra_layers import EquivariantLayer, GeodesicLayer, AMP
 from modules.training.loaders import BodyDataset
 from modules.training.train import training
@@ -28,7 +28,7 @@ p_files = sorted(glob.glob('../dataset/good_points/*.npz'))[:70]
 params = {'batch_size':1000,
          'lr': 0.001,
          'epochs': 44,
-         'model_dir': '/home/maxim/models/equi5_16_16_16_run_1/',
+         'model_dir': '/home/maxim/models/sub_equi6_64_16_16_run_0/',
          'p_bins': 5,
          't_bins': 16,
          'n_vert': 6890,
@@ -39,11 +39,11 @@ params = {'batch_size':1000,
          'loss_mu':.2,
          'loss_gamma': .5,
          'optim':'Adam',
-         'neurons': [150,16,16,16],
-         'device': torch.device("cuda:1")}
+         'neurons': [150,64,16,16],
+         'device': torch.device("cuda:0")}
 
 # Initialize Model
-model = GCCN_5(params['neurons'], device = params['device'])
+model = GCCN_6(params['neurons'], device = params['device'])
 
 
 if params['subset']:
