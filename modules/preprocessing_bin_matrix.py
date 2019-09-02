@@ -21,13 +21,15 @@ def read_ply(f_name):
     data_tri = np.vstack(data['face'].data['vertex_indices'])
     return trimesh(data_vert, data_tri)
 
-data_path_in = '/Users/maximoldenbeek/Dropbox/Thesis/datasets/MPI-FAUST/training/registrations'
-data_path_out = '/Users/maximoldenbeek/Dropbox/Thesis/datasets/FAUST_preprocesed/alligned'
+data_path_in = '/home/maxim/dataset/registrations/'
+data_path_out = '/home/maxim/dataset/alligned/'
 
+start_file = int(sys.argv[1])
+stop_file = int(sys.argv[2])
 
 registrations = sorted(glob(os.path.join(data_path_in,'*.ply')))
 
-for file_path in registrations:
+for file_path in registrations[start_file:stop_file]:
     file = re.findall('tr_.*?ply$', file_path)[0]
     
     file_out = re.sub('\.ply$','_all.npz',file)

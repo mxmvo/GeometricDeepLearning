@@ -22,6 +22,9 @@ p_exp = lambda x,y: np.exp(-x**2/(2*y**2))
 p_trans = lambda r: r/p_bins
 t_trans = lambda t: 2*np.pi*t/t_bins
 
+start_file = int(sys.argv[1])
+stop_file = int(sys.argv[2])
+
 # A function that returns the vertex areas
 def vertex_area(mesh):
     tri = mesh.vertices[mesh.triangles]
@@ -109,11 +112,11 @@ def read_adj(f_name):
 
 data_path_reg = '/home/maxim/dataset/registrations'
 data_path_bin = '/home/maxim/dataset/alligned'
-data_path_out = '/home/maxm/dataset/alligned_adj'
+data_path_out = '/home/maxim/dataset/alligned_adj'
 
 
-bin_matrices = sorted(glob(os.path.join(data_path_bin,'*.npz')))
-registrations = sorted(glob(os.path.join(data_path_reg,'*.ply')))
+bin_matrices = sorted(glob(os.path.join(data_path_bin,'*.npz')))[start_file:stop_file]
+registrations = sorted(glob(os.path.join(data_path_reg,'*.ply')))[start_file:stop_file]
 
 for i, file_path in enumerate(tqdm(bin_matrices)):
     mesh_path = registrations[i]
@@ -126,7 +129,7 @@ for i, file_path in enumerate(tqdm(bin_matrices)):
     path_out = os.path.join(data_path_out, file_out)
     
     print('-'*20)
-    print('Starting:',file)
+    print('Starting:',file, mesh_path)
     if os.path.isfile(path_out):
         print('File {} already exists, continuing with next'.format(file))
         continue
